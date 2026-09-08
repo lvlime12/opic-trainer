@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>오픽 72 만능패턴 듀얼 보이스 트레이너</title>
+  <title>오픽 72 만능패턴 완벽 마스터 트레이너</title>
   <style>
     :root {
       --bg-color: #0b0f19;
@@ -33,7 +33,7 @@
     .container {
       background-color: var(--card-bg);
       width: 100%;
-      max-width: 650px;
+      max-width: 680px;
       border-radius: 1.25rem;
       padding: 1.5rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
@@ -66,7 +66,7 @@
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(37,99,235,0.4);
     }
-    /* 배지 및 카테고리 */
+    /* 헤더 정보 */
     .header-info {
       display: flex;
       justify-content: space-between;
@@ -75,47 +75,79 @@
     .badge {
       font-size: 0.8rem;
       font-weight: 600;
-      padding: 0.25rem 0.6rem;
+      padding: 0.3rem 0.7rem;
       border-radius: 9999px;
       background: rgba(56, 189, 248, 0.15);
       color: var(--primary);
     }
+    .controls-mini {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
     .progress-count {
       font-size: 0.85rem;
       color: var(--text-sub);
+      font-weight: 600;
+    }
+    .btn-shuffle {
+      background: #334155;
+      color: #e2e8f0;
+      border: none;
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.4rem;
+      font-size: 0.75rem;
+      cursor: pointer;
     }
     /* 문장 디스플레이 영역 */
     .display-box {
       background: #0f172a;
       border: 1px solid #334155;
       border-radius: 0.75rem;
-      padding: 1.5rem 1.2rem;
+      padding: 1.8rem 1.2rem;
       text-align: center;
-      min-height: 160px;
+      min-height: 190px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 0.75rem;
+      align-items: center;
+      gap: 1rem;
     }
     .main-text {
-      font-size: clamp(1.25rem, 4.5vw, 1.6rem);
+      font-size: clamp(1.2rem, 4.5vw, 1.55rem);
       font-weight: 700;
-      line-height: 1.4;
+      line-height: 1.45;
       word-break: keep-all;
     }
-    .sub-text {
+    .sub-box {
+      width: 100%;
       font-size: clamp(0.95rem, 3.5vw, 1.1rem);
-      color: var(--text-sub);
       line-height: 1.4;
       word-break: keep-all;
+      transition: opacity 0.3s ease;
     }
-    /* 음성 인식 결과 박스 */
+    .btn-hint-toggle {
+      background: #0369a1;
+      color: #ffffff;
+      padding: 0.55rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: none;
+      transition: background 0.2s;
+    }
+    .btn-hint-toggle:hover {
+      background: #0284c7;
+    }
+    /* 음성 인식 모니터링 */
     .voice-status {
       border: 1px dashed #475569;
       border-radius: 0.6rem;
       padding: 0.85rem;
       text-align: center;
-      min-height: 54px;
+      min-height: 58px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -135,14 +167,14 @@
     /* 컨트롤 버튼 */
     .btn-grid {
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
+      grid-template-columns: 80px 1.5fr 80px;
       gap: 0.6rem;
     }
     button.action-btn {
-      padding: 0.9rem;
+      padding: 0.85rem 0.5rem;
       border: none;
       border-radius: 0.6rem;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -153,18 +185,7 @@
     button.action-btn:active { opacity: 0.8; }
     .btn-mic { background: var(--accent); color: #0b0f19; }
     .btn-mic.listening { background: var(--danger); color: #ffffff; }
-    .btn-next { background: #475569; color: #ffffff; }
-    .btn-hint-toggle {
-      background: #0284c7;
-      color: #ffffff;
-      padding: 0.6rem;
-      border-radius: 0.5rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      display: none;
-    }
+    .btn-nav { background: #475569; color: #ffffff; }
   </style>
 </head>
 <body>
@@ -179,14 +200,17 @@
   <!-- 상단 정보 -->
   <div class="header-info">
     <span class="badge" id="categoryBadge">카테고리 로딩 중</span>
-    <span class="progress-count" id="progressText">1 / 24</span>
+    <div class="controls-mini">
+      <button class="btn-shuffle" onclick="shufflePatterns()" title="무작위 순서로 섞기">🔀 셔플</button>
+      <span class="progress-count" id="progressText">1 / 72</span>
+    </div>
   </div>
 
-  <!-- 메인 프롬프트 디스플레이 -->
+  <!-- 메인 프롬프트 영역 -->
   <div class="display-box">
-    <div class="main-text" id="primaryPrompt">영어/한글 준비 중...</div>
-    <div class="sub-text" id="secondaryPrompt">설명 준비 중...</div>
-    <button class="btn-hint-toggle" id="hintToggleBtn" onclick="toggleTestHint()">정답 힌트 열기</button>
+    <div class="main-text" id="primaryPrompt">데이터 준비 중...</div>
+    <div class="sub-box" id="secondaryPrompt">설명 준비 중...</div>
+    <button class="btn-hint-toggle" id="hintToggleBtn" onclick="toggleTestHint()">💡 정답 및 팁 힌트 열기</button>
   </div>
 
   <!-- 음성 인식 모니터링 영역 -->
@@ -195,40 +219,102 @@
     <div class="feedback" id="evalFeedback"></div>
   </div>
 
-  <!-- 하단 컨트롤 버튼 -->
+  <!-- 컨트롤 버튼 -->
   <div class="btn-grid">
+    <button class="action-btn btn-nav" onclick="movePrev()">◀ 이전</button>
     <button class="action-btn btn-mic" id="micBtn" onclick="toggleMic()">🎙️ 마이크 시작</button>
-    <button class="action-btn btn-next" onclick="moveNext()">건너뛰기 ⏩</button>
+    <button class="action-btn btn-nav" onclick="moveNext()">다음 ▶</button>
   </div>
 </div>
 
 <script>
-// 유튜브 핵심 72 패턴 기반 압축 데이터셋
+// 강지완 오픽 만능패턴 72문장 완전체 데이터셋 (1번 ~ 72번)
 const patternData = [
-  { cat: "Pattern 1 (여가활동)", en: "I really enjoy listening to music in my free time", ko: "자유시간에 음악 듣는 것을 정말 즐겨요.", tip: "동명사(~ing)를 목적어로 써서 취미를 말할 때 활용" },
-  { cat: "Pattern 2 (최애활동)", en: "One of my favorite activities is watching movies", ko: "제가 가장 좋아하는 활동 중 하나는 영화 감상입니다.", tip: "One of my favorite activities is ~ing 구조" },
-  { cat: "Pattern 3 (일상루틴)", en: "I usually stay home and relax when I have free time", ko: "시간 날 때 보통 집에서 편히 쉬어요.", tip: "usually + 현재동사로 평소 루틴 묘사" },
-  { cat: "Pattern 4 (주말활동)", en: "I often travel domestically on weekends", ko: "주말에는 종종 국내 여행을 가요.", tip: "domestically(국내로) 부사 활용" },
-  { cat: "Pattern 7 (이유제시)", en: "I especially like going to cafes because it helps me relax", ko: "카페 가는 것을 특히 좋아하는데, 휴식에 도움이 되기 때문입니다.", tip: "because it helps me relax는 모든 여가에 적용 가능한 만능 이유" },
-  { cat: "Pattern 8 (효과/장점)", en: "It's a great way to relieve stress", ko: "스트레스를 풀기에 정말 좋은 방법입니다.", tip: "relieve stress / stay healthy 등으로 확장" },
-  { cat: "Pattern 9 (기분상태)", en: "It makes me feel refreshed", ko: "그것은 제 기분을 상쾌하게 만들어 줍니다.", tip: "make + me + feel + 형용사 구조" },
-  { cat: "Pattern 10 (장소묘사)", en: "There is a great place near my house where I walk in the park", ko: "집 근처에 산책하기 좋은 멋진 공원이 하나 있어요.", tip: "관계부사 where로 장소의 특징 설명" },
-  { cat: "Pattern 12 (과거경험)", en: "I remember one memorable experience when I traveled to Busan", ko: "부산으로 여행 갔을 때 기억에 남는 경험이 하나 있어요.", tip: "과거 경험 시작 시 완벽한 오프닝 문장" },
-  { cat: "Pattern 15 (돌발/문제)", en: "However I once had a problem when I traveled abroad", ko: "하지만 해외여행 중 한 번 문제가 생긴 적이 있습니다.", tip: "과거 사건/계기 전환용 템플릿" },
-  { cat: "Pattern 17 (과거 vs 현재)", en: "Compared to the past people go to cafes much more these days", ko: "과거에 비해 요즘 사람들은 카페에 훨씬 더 많이 갑니다.", tip: "14~15번 비교 문제 오프닝 필수 패턴" },
-  { cat: "Pattern 20 (일상의 일부)", en: "That's why working out has become an important part of my life", ko: "그래서 운동은 제 일상에서 중요한 부분이 되었습니다.", tip: "has become an important part of my life (현재완료)" },
-  { cat: "Pattern 25 (사회적 이슈)", en: "These days people talk a lot about technology", ko: "요즘 사람들은 기술에 대해 이야기를 많이 합니다.", tip: "산업/기술/재활용 등 시사 돌발 토픽" },
-  { cat: "Pattern 28 (장단점)", en: "One advantage of smartphones is convenience", ko: "스마트폰의 한 가지 장점은 편리함입니다.", tip: "One advantage of 명사 is 명사 구조" },
-  { cat: "Pattern 37 (문제해결 시작)", en: "At first I didn't know how to handle the problem at work", ko: "처음에는 직장에서 그 문제를 어떻게 처리해야 할지 몰랐어요.", tip: "handle the problem: 문제 대처" },
-  { cat: "Pattern 38 (해결과정)", en: "But eventually I found a solution for the reservation issue", ko: "하지만 결국 예약 문제에 대한 해결책을 찾았습니다.", tip: "eventually + found a solution: 마무리 국면" },
-  { cat: "Pattern 49 (롤플레이-변경)", en: "I'd like to change my reservation for the hotel", ko: "호텔 예약을 변경하고 싶습니다.", tip: "11번 문의 및 예약 변경 시 기본 문장" },
-  { cat: "Pattern 50 (롤플레이-취소)", en: "I need to cancel my reservation for the tour", ko: "투어 예약을 취소해야 합니다.", tip: "I need to cancel ~ 구조" },
-  { cat: "Pattern 52 (롤플레이-문의)", en: "I was wondering if tickets are available", ko: "티켓을 구할 수 있는지 알고 싶습니다.", tip: "공손하게 질문할 때 완벽한 패턴" },
-  { cat: "Pattern 55 (롤플레이-시간)", en: "What time does the concert start", ko: "콘서트가 몇 시에 시작하나요?", tip: "가장 기본적인 롤플레이 세부 질문" },
-  { cat: "Pattern 57 (롤플레이-추천)", en: "Do you have any recommendations for travel destinations", ko: "여행지에 대해 추천해 주실 만한 곳이 있나요?", tip: "추천 요청 질문" },
-  { cat: "Pattern 60 (롤플레이-문제제기)", en: "I have a problem with my booking", ko: "제 예약에 문제가 좀 생겼습니다.", tip: "12번 상황극 문제 제기 오프닝" },
-  { cat: "Pattern 67 (롤플레이-감사)", en: "I really appreciate your help with my reservation", ko: "예약을 도와주셔서 정말 감사드립니다.", tip: "롤플레이 11~13번 마무리 감사 표현" },
-  { cat: "Pattern 70 (롤플레이-마무리)", en: "I'm glad we solved the ticket issue", ko: "티켓 문제가 해결되어 기쁩니다.", tip: "해결 후 안도감 표현" }
+  // SECTION 01: 자유시간 / 취미 활동 (01-10)
+  { cat: "Pattern 01 [선호 표현]", en: "I really enjoy listening to music in my free time", ko: "저는 자유 시간에 음악 듣는 것을 정말 좋아해요.", tip: "I really enjoy ~ing in my free time (여가활동 기본 오프닝)" },
+  { cat: "Pattern 02 [최애 활동]", en: "One of my favorite activities is watching movies", ko: "제가 가장 좋아하는 활동 중 하나는 영화 감상이에요.", tip: "One of my favorite activities is ~ing (최애 취미 강조)" },
+  { cat: "Pattern 03 [평소 습관]", en: "I usually stay home and relax when I have free time", ko: "저는 시간이 있을 때 보통 집에서 편히 쉬어요.", tip: "I usually ~ when I have free time (일상 루틴 묘사)" },
+  { cat: "Pattern 04 [주말 습관]", en: "I often travel domestically on weekends", ko: "저는 주말에 종종 국내 여행을 가는 편이에요.", tip: "I often ~ on weekends (주말 활동 빈도)" },
+  { cat: "Pattern 05 [동반 활동]", en: "Sometimes I watch movies with my friends", ko: "가끔 친구들이랑 같이 영화를 보기도 해요.", tip: "Sometimes I ~ with my friends (동반자 및 친교 활동)" },
+  { cat: "Pattern 06 [혼자 활동]", en: "Most of the time I listen to music alone", ko: "대부분은 혼자 음악을 듣는 편이에요.", tip: "Most of the time I ~ alone (독서/음악 등 단독 활동)" },
+  { cat: "Pattern 07 [스트레스 해소]", en: "I especially like going to cafes because it helps me relax", ko: "카페 가는 것을 특히 좋아하는데 휴식에 도움이 되기 때문이에요.", tip: "because it helps me relax (모든 활동에 적용 가능한 만능 이유)" },
+  { cat: "Pattern 08 [장점 설명]", en: "It's a great way to relieve stress", ko: "스트레스를 풀기에 정말 좋은 방법이에요.", tip: "It's a great way to relieve stress / stay healthy (활동 이점)" },
+  { cat: "Pattern 09 [감정/기분]", en: "It makes me feel refreshed", ko: "그걸 하면 기분이 상쾌해져요.", tip: "It makes me feel refreshed / relaxed / energetic (감정 상태)" },
+  { cat: "Pattern 10 [장소 묘사]", en: "There is a great place near my house where I walk in the park", ko: "집 근처에 제가 산책하기 좋은 멋진 공원이 있어요.", tip: "There is a great place near my house where I ~ (주변 장소 소개)" },
+
+  // SECTION 02: 경험 / 장소 / 추억 (11-20)
+  { cat: "Pattern 11 [위치 설명]", en: "The cafe is located not far from where I live", ko: "그 카페는 제가 사는 곳에서 멀지 않은 곳에 있어요.", tip: "... is located not far from where I live (위치/접근성 묘사)" },
+  { cat: "Pattern 12 [기억나는 경험]", en: "I remember one memorable experience when I traveled to Busan", ko: "부산으로 여행 갔을 때 기억에 남는 경험이 하나 있어요.", tip: "I remember one memorable experience when I ~ (과거 경험 만능 서두)" },
+  { cat: "Pattern 13 [재미있는 일]", en: "Something interesting happened when I traveled to Jeju Island", ko: "제주도로 여행을 갔을 때 재미있는 일이 하나 있었어요.", tip: "Something interesting happened when I ~ (에피소드 전환)" },
+  { cat: "Pattern 14 [최고의 순간]", en: "It was one of the most memorable moments when I reached the top of the mountain", ko: "산 정상에 올랐을 때가 가장 기억에 남는 순간 중 하나였어요.", tip: "It was one of the most memorable moments when I ~ (하이라이트 강조)" },
+  { cat: "Pattern 15 [문제 발생]", en: "However I once had a problem when I traveled abroad", ko: "그런데 제가 해외여행을 갔을 때 한 번 문제가 있었어요.", tip: "However, I once had a problem when I ~ (돌발 상황 서두)" },
+  { cat: "Pattern 16 [돌발 상황]", en: "Something unexpected happened when I watched a movie at the theater", ko: "영화관에서 영화를 보았을 때 예상치 못한 일이 일어났어요.", tip: "Something unexpected happened when I ~ (예기치 못한 돌발 상황)" },
+  { cat: "Pattern 17 [과거 비교]", en: "Compared to the past people go to cafes much more these days", ko: "예전에 비하면 요즘 사람들은 카페에 훨씬 더 많이 가요.", tip: "Compared to the past, people ~ much more these days (과거와 현재 비교)" },
+  { cat: "Pattern 18 [요즘 트렌드]", en: "These days more people enjoy going hiking", ko: "요즘 더 많은 사람들이 등산 가는 것을 즐겨요.", tip: "These days more people enjoy ~ (사회적 트렌드/유행)" },
+  { cat: "Pattern 19 [선호 이유]", en: "That's why I enjoy listening to music so much", ko: "그래서 저는 음악 듣는 것을 정말 좋아해요.", tip: "That's why I enjoy ~ so much (이유 종합 및 강조)" },
+  { cat: "Pattern 20 [삶의 일부]", en: "That's why working out has become an important part of my life", ko: "그래서 운동은 제 삶의 중요한 부분이 되었어요.", tip: "has become an important part of my life (경험 답변 만능 결론)" },
+
+  // SECTION 03: 빈도·선호 / 사회 이슈 (21-30)
+  { cat: "Pattern 21 [빈도 감소]", en: "I don't watch movies as often as before", ko: "저는 예전만큼 영화를 자주 보지는 않아요.", tip: "I don't ~ as often as before (과거 대비 빈도 감소 묘사)" },
+  { cat: "Pattern 22 [여전한 선호]", en: "But I still enjoy traveling whenever I have the chance", ko: "그래도 기회가 생기면 여전히 여행 가는 것을 즐겨요.", tip: "But I still enjoy ~ whenever I have the chance (지속되는 선호)" },
+  { cat: "Pattern 23 [전반적 선호]", en: "Overall I really enjoy listening to music", ko: "전반적으로 저는 음악 감상하는 것을 정말 좋아해요.", tip: "Overall, I really enjoy ~ (답변 요약/총평)" },
+  { cat: "Pattern 24 [휴식 방법]", en: "For me listening to music is a great way to relax", ko: "저에게 음악을 듣는 것은 아주 좋은 휴식 방법이에요.", tip: "For me, ~ is a great way to relax (자신만의 휴식 의미 부여)" },
+  { cat: "Pattern 25 [사회 이슈]", en: "These days people talk a lot about technology", ko: "요즘 사람들은 기술에 대해 많은 이야기를 해요.", tip: "These days people talk a lot about ~ (14~15번 시사 오프닝)" },
+  { cat: "Pattern 26 [중요성]", en: "I think recycling is very important in our lives", ko: "저는 재활용이 우리 삶에서 매우 중요하다고 생각해요.", tip: "I think ~ is very important in our lives (개인적 소신 피력)" },
+  { cat: "Pattern 27 [일상 사용]", en: "Many people use smartphones in their daily lives", ko: "많은 사람들이 일상생활에서 스마트폰을 사용해요.", tip: "Many people use ~ in their daily lives (보편적 사회 현상)" },
+  { cat: "Pattern 28 [장점]", en: "One advantage of smartphones is convenience", ko: "스마트폰의 한 가지 장점은 편리함이에요.", tip: "One advantage of ~ is ~ (장점 제시)" },
+  { cat: "Pattern 29 [단점]", en: "However smartphones also have some disadvantages", ko: "하지만 스마트폰에는 몇 가지 단점도 있어요.", tip: "However, ~ also has some disadvantages (역접 및 단점 제기)" },
+  { cat: "Pattern 30 [예시 들기]", en: "One example of technology is artificial intelligence", ko: "기술의 한 가지 예는 인공지능입니다.", tip: "One example of ~ is ~ (구체적 사례 도입)" },
+
+  // SECTION 04: 변화 / 경험 / 문제해결 / 교훈 (31-40)
+  { cat: "Pattern 31 [추가 예시]", en: "Another example of technology is smartphones", ko: "기술의 또 다른 예는 스마트폰입니다.", tip: "Another example of ~ is ~ (추가 사례 덧붙이기)" },
+  { cat: "Pattern 32 [과거 비교]", en: "Compared to the past technology has changed a lot", ko: "예전에 비하면 기술은 정말 많이 바뀌었어요.", tip: "Compared to the past, ~ has changed a lot (산업/기기 변화)" },
+  { cat: "Pattern 33 [긍정 효과]", en: "Because of technology our lives have become more convenient", ko: "기술 덕분에 우리의 삶은 훨씬 더 편리해졌어요.", tip: "Because of ~, our lives have become more convenient (긍정적 영향)" },
+  { cat: "Pattern 34 [우려 사항]", en: "However some people worry about technology addiction", ko: "하지만 어떤 사람들은 기술 중독에 대해 걱정하기도 해요.", tip: "However, some people worry about ~ (사회적 문제점/부작용)" },
+  { cat: "Pattern 35 [관련 경험]", en: "I remember an experience related to staying at a hotel", ko: "저는 호텔 숙박과 관련된 경험이 하나 기억나요.", tip: "I remember an experience related to ~ (토픽 관련 경험 도입)" },
+  { cat: "Pattern 36 [돌발 상황]", en: "Something unexpected happened when I experienced a hotel stay", ko: "호텔 숙박을 경험했을 때 예상치 못한 일이 일어났어요.", tip: "Something unexpected happened when I experienced ~ (돌발 상황)" },
+  { cat: "Pattern 37 [난관 봉착]", en: "At first I didn't know how to handle the problem at work", ko: "처음에는 직장에서 그 문제를 어떻게 처리해야 할지 몰랐어요.", tip: "At first, I didn't know how to handle ~ (당황했던 초기 국면)" },
+  { cat: "Pattern 38 [해결책 발견]", en: "But eventually I found a solution for the reservation issue", ko: "하지만 결국 예약 문제에 대한 해결책을 찾아냈어요.", tip: "But eventually, I found a solution for ~ (해결 전환)" },
+  { cat: "Pattern 39 [해결 완료]", en: "In the end everything worked out well with the work issue", ko: "결국 직장 문제는 모두 순조롭게 잘 해결되었어요.", tip: "In the end, everything worked out well with ~ (문제 종결)" },
+  { cat: "Pattern 40 [교훈]", en: "Because of that experience I learned the importance of preparation", ko: "그 경험을 통해 저는 준비의 중요성을 배웠어요.", tip: "Because of that experience, I learned ~ (경험을 통한 교훈)" },
+
+  // SECTION 05: 미래 전망 / 중요성 (41-44)
+  { cat: "Pattern 41 [미래 예측]", en: "In the future I think online shopping will become more common", ko: "앞으로 온라인 쇼핑은 더욱 흔해질 것 같아요.", tip: "In the future, I think ~ will become more common (미래 대중화 예측)" },
+  { cat: "Pattern 42 [사용 전망]", en: "More people will probably use electric vehicles in the future", ko: "앞으로 더 많은 사람들이 전기차를 사용할 것 같아요.", tip: "More people will probably use ~ in the future (사용자 증가 전망)" },
+  { cat: "Pattern 43 [지속 발전]", en: "I believe the green energy industry will continue to grow", ko: "친환경 에너지 산업이 앞으로도 계속 성장할 것이라 믿어요.", tip: "I believe ~ will continue to grow (산업 지속 성장)" },
+  { cat: "Pattern 44 [중요성 강조]", en: "That's why communication skills are important in modern society", ko: "그래서 현대 사회에서는 소통 능력이 중요합니다.", tip: "That's why ~ is important in modern society (현대 사회 중요성 강조)" },
+
+  // SECTION 06: 롤플레이: 문의 / 예약 / 변경 / 취소 (45-60)
+  { cat: "Pattern 45 [문의 목적]", en: "Hi I'm calling because I have a question about the tour", ko: "안녕하세요, 투어에 대해 문의드릴 사항이 있어 전화드렸습니다.", tip: "Hi, I'm calling because I have a question about ~ (11번 롤플레이 시작)" },
+  { cat: "Pattern 46 [문의 요청]", en: "I'd like to ask about the concert tickets", ko: "콘서트 티켓에 대해 문의드리고 싶습니다.", tip: "I'd like to ask about ~ (공손한 문의 표현)" },
+  { cat: "Pattern 47 [정보 요청]", en: "Could you give me some information about the hotel", ko: "호텔에 대한 정보를 좀 알려주실 수 있나요?", tip: "Could you give me some information about ~? (정보 요청 질문)" },
+  { cat: "Pattern 48 [예약 요청]", en: "I'd like to make a reservation for a table tomorrow", ko: "내일 식사 테이블을 예약하고 싶습니다.", tip: "I'd like to make a reservation for ~ (기본 예약 표현)" },
+  { cat: "Pattern 49 [예약 변경]", en: "I'd like to change my reservation for the hotel", ko: "호텔 예약을 변경하고 싶습니다.", tip: "I'd like to change my reservation for ~ (예약 변경)" },
+  { cat: "Pattern 50 [예약 취소]", en: "I need to cancel my reservation for the tour", ko: "투어 예약을 취소해야 할 것 같습니다.", tip: "I need to cancel my reservation for ~ (예약 취소)" },
+  { cat: "Pattern 51 [예약 확인]", en: "I'd like to confirm my reservation for the flight", ko: "항공편 예약을 확인하고 싶습니다.", tip: "I'd like to confirm my reservation for ~ (예약 재확인)" },
+  { cat: "Pattern 52 [가능 여부]", en: "I was wondering if tickets are available", ko: "티켓을 구할 수 있는지 알고 싶습니다.", tip: "I was wondering if ~ is available (가장 공손한 이용 가능 여부)" },
+  { cat: "Pattern 53 [변경 문의]", en: "Is it possible to change the tour date", ko: "투어 날짜를 변경하는 것이 가능할까요?", tip: "Is it possible to change ~? (변경 가능 여부 문의)" },
+  { cat: "Pattern 54 [내일 예약]", en: "Could I make a reservation for delivery tomorrow", ko: "내일 배송 예약을 할 수 있을까요?", tip: "Could I make a reservation for ~ tomorrow? (특정 시점 예약)" },
+  { cat: "Pattern 55 [시간 문의]", en: "What time does the concert start", ko: "콘서트가 몇 시에 시작하나요?", tip: "What time does ~ start? (시간 세부 질문)" },
+  { cat: "Pattern 56 [가격 문의]", en: "How much does the concert ticket cost", ko: "콘서트 티켓 비용이 얼마인가요?", tip: "How much does ~ cost? (가격 확인 질문)" },
+  { cat: "Pattern 57 [추천 요청 1]", en: "Do you have any recommendations for travel destinations", ko: "여행지에 대해 추천해 주실 만한 곳이 있나요?", tip: "Do you have any recommendations for ~? (추천 질문)" },
+  { cat: "Pattern 58 [추천 요청 2]", en: "Could you recommend a popular menu item", ko: "인기 있는 메뉴를 하나 추천해 주실 수 있나요?", tip: "Could you recommend ~? (직접 추천 요청)" },
+  { cat: "Pattern 59 [의견 구하기]", en: "What would you recommend for beginners", ko: "초보자에게는 어떤 것을 추천하시나요?", tip: "What would you recommend for ~? (상황별 추천 의뢰)" },
+  { cat: "Pattern 60 [문제 제기]", en: "I have a problem with my booking", ko: "제 예약에 문제가 좀 생겼습니다.", tip: "I have a problem with ~ (12번 롤플레이 문제 제기 필수 오프닝)" },
+
+  // SECTION 07: 롤플레이: 문제 설명 / 해결 / 감사 (61-72)
+  { cat: "Pattern 61 [문제 발생]", en: "Something went wrong with my hotel booking", ko: "호텔 예약에 뭔가 착오나 문제가 생긴 것 같아요.", tip: "Something went wrong with ~ (문제가 있음을 설명)" },
+  { cat: "Pattern 62 [도움 요청]", en: "Could you help me with my reservation issue", ko: "예약 문제 해결을 좀 도와주실 수 있나요?", tip: "Could you help me with ~? (도움 및 대처 요청)" },
+  { cat: "Pattern 63 [해결 방법]", en: "I'm not sure what to do about my flight ticket", ko: "항공권 티켓을 어떻게 처리해야 할지 모르겠어요.", tip: "I'm not sure what to do about ~ (답답한 상황 어필)" },
+  { cat: "Pattern 64 [상세 설명]", en: "Could you explain the details of the refund policy", ko: "환불 규정에 대해 상세히 설명해 주실 수 있나요?", tip: "Could you explain the details of ~? (세부 정책/내용 문의)" },
+  { cat: "Pattern 65 [동의/수락]", en: "That sounds good for the tour schedule", ko: "투어 일정으로 진행하면 괜찮을 것 같네요.", tip: "That sounds good for ~ (상대방 대안 수락)" },
+  { cat: "Pattern 66 [강한 긍정]", en: "That would be great for the hotel room", ko: "그 호텔 객실로 해주시면 정말 좋겠습니다.", tip: "That would be great for ~ (제안에 대한 적극 동의)" },
+  { cat: "Pattern 67 [감사 표현]", en: "I really appreciate your help with my reservation", ko: "예약 도와주셔서 진심으로 감사드립니다.", tip: "I really appreciate your help with ~ (도움에 대한 감사)" },
+  { cat: "Pattern 68 [도움 인정]", en: "That really helped with my ticket issue", ko: "티켓 문제를 해결하는 데 정말 큰 도움이 되었어요.", tip: "That really helped with ~ (해결 만족감 표현)" },
+  { cat: "Pattern 69 [이해 표현]", en: "Now I understand the tour process better", ko: "이제 투어 진행 절차를 훨씬 더 잘 이해했습니다.", tip: "Now I understand ~ better (안내 확인 완료)" },
+  { cat: "Pattern 70 [안도/해결]", en: "I'm glad we solved the booking problem", ko: "예약 문제가 원만히 해결되어 정말 다행입니다.", tip: "I'm glad we solved ~ (롤플레이 문제 종결)" },
+  { cat: "Pattern 71 [거듭 감사]", en: "Thanks again for helping with my reservation", ko: "제 예약을 도와주셔서 다시 한번 감사드립니다.", tip: "Thanks again for helping with ~ (대화 마무리 인사)" },
+  { cat: "Pattern 72 [도움 인정]", en: "That was very helpful for my problem", ko: "문제를 해결하는 데 아주 많은 도움이 되었습니다.", tip: "That was very helpful for ~ (마지막 종결 감사)" }
 ];
 
 let currentMode = 'practice'; // 'practice' 또는 'test'
@@ -237,12 +323,12 @@ let isListening = false;
 let recognition = null;
 let isHintVisible = false;
 
-// 문자열 정규화
+// 문자열 정규화 (특수문자 제거 및 소문자화)
 function cleanText(str) {
   return str.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
 }
 
-// 음성 유사도 판별 (Levenshtein Distance)
+// 레벤슈타인 거리 기반 유사도 계산
 function getSimilarity(s1, s2) {
   const a = cleanText(s1);
   const b = cleanText(s2);
@@ -262,7 +348,7 @@ function getSimilarity(s1, s2) {
   return 1 - (dp[a.length][b.length] / Math.max(a.length, b.length));
 }
 
-// Web Speech API 초기화 (모바일 크롬/사파리 완벽 대응)
+// Web Speech API 초기화
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRec) {
   recognition = new SpeechRec();
@@ -277,9 +363,9 @@ if (SpeechRec) {
   };
 
   recognition.onerror = (e) => {
-    console.warn("STT 이벤트 알림:", e.error);
+    console.warn("STT 알림:", e.error);
     if (e.error === 'not-allowed') {
-      alert("마이크 권한이 차단되어 있습니다. 브라우저 설정에서 마이크를 허용해 주세요.");
+      alert("마이크 사용 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해 주세요.");
       stopMic();
     }
   };
@@ -295,7 +381,7 @@ function updateCard() {
   const cur = patternData[currentIndex];
   document.getElementById('categoryBadge').textContent = cur.cat;
   document.getElementById('progressText').textContent = `${currentIndex + 1} / ${patternData.length}`;
-  document.getElementById('recognizedOutput').textContent = "발화를 듣고 있습니다...";
+  document.getElementById('recognizedOutput').textContent = isListening ? "발화를 듣고 있습니다..." : "마이크 버튼을 누르고 말씀하세요.";
   document.getElementById('evalFeedback').textContent = "";
 
   const primary = document.getElementById('primaryPrompt');
@@ -303,19 +389,19 @@ function updateCard() {
   const hintBtn = document.getElementById('hintToggleBtn');
 
   if (currentMode === 'practice') {
-    // 무한 연습 모드: 영어가 상단에 크게 보이고, 한글 뜻과 팁이 아래에 표시
+    // 무한 연습 모드: 영어가 메인, 한글 뜻과 팁 상시 노출
     hintBtn.style.display = 'none';
     primary.style.color = '#38bdf8';
     primary.textContent = cur.en;
-    secondary.innerHTML = `<strong>${cur.ko}</strong><br><span style="font-size:0.85em; color:#64748b;">Tip: ${cur.tip}</span>`;
+    secondary.innerHTML = `<strong style="color: #f8fafc; font-size: 1.1em;">${cur.ko}</strong><br><span style="font-size:0.85em; color:#94a3b8; margin-top: 4px; display: inline-block;">💡 Tip: ${cur.tip}</span>`;
   } else {
-    // 실전 테스트 모드: 한글 뜻만 보이고 영어는 감춤 (힌트 버튼 활성화)
+    // 실전 테스트 모드: 오직 한글 뜻만 단독 표시 (힌트 버튼으로만 정답/팁 열람 가능)
     isHintVisible = false;
     hintBtn.style.display = 'inline-block';
-    hintBtn.textContent = '정답 힌트 열기';
+    hintBtn.textContent = '💡 정답 및 팁 힌트 열기';
     primary.style.color = '#f8fafc';
     primary.textContent = cur.ko;
-    secondary.innerHTML = `<span style="color:#64748b;">Tip: ${cur.tip}</span>`;
+    secondary.innerHTML = ''; // 팁과 영어를 모두 숨김
   }
 }
 
@@ -324,24 +410,32 @@ function evaluateSpeech(spoken) {
   const sim = getSimilarity(spoken, target);
   const feedback = document.getElementById('evalFeedback');
 
-  // 유사도 70% 이상이거나 핵심 구문이 매칭되면 통과
+  // 유사도 70% 이상이거나 핵심 구문이 포함되면 성공
   if (sim >= 0.70 || cleanText(spoken).includes(cleanText(target))) {
     feedback.className = "feedback success";
-    feedback.textContent = `통과! (${Math.round(sim * 100)}%) 다음 문장으로 자동 이동합니다.`;
+    feedback.textContent = `🎯 정답 통과! (일치율: ${Math.round(sim * 100)}%) 다음 문장으로 이동합니다.`;
     setTimeout(() => {
       moveNext();
     }, 900);
   } else {
     feedback.className = "feedback fail";
-    feedback.textContent = `다시 시도해 보세요 (인식 일치율: ${Math.round(sim * 100)}%)`;
+    feedback.textContent = `⚠️ 다시 시도해 보세요 (인식 일치율: ${Math.round(sim * 100)}%)`;
   }
 }
 
+// 무한 순환 이동 (다음)
 function moveNext() {
   currentIndex = (currentIndex + 1) % patternData.length;
   updateCard();
 }
 
+// 무한 순환 이동 (이전)
+function movePrev() {
+  currentIndex = (currentIndex - 1 + patternData.length) % patternData.length;
+  updateCard();
+}
+
+// 모드 전환
 function switchMode(mode) {
   currentMode = mode;
   document.getElementById('tabPractice').classList.toggle('active', mode === 'practice');
@@ -349,6 +443,7 @@ function switchMode(mode) {
   updateCard();
 }
 
+// 실전 테스트 모드 전용 힌트 토글 (버튼을 눌러야만 열림)
 function toggleTestHint() {
   const secondary = document.getElementById('secondaryPrompt');
   const hintBtn = document.getElementById('hintToggleBtn');
@@ -356,17 +451,29 @@ function toggleTestHint() {
 
   isHintVisible = !isHintVisible;
   if (isHintVisible) {
-    secondary.innerHTML = `<strong style="color:#38bdf8;">${cur.en}</strong><br><span style="font-size:0.85em; color:#64748b;">Tip: ${cur.tip}</span>`;
-    hintBtn.textContent = '힌트 숨기기';
+    secondary.innerHTML = `<strong style="color:#38bdf8; font-size:1.15em;">${cur.en}</strong><br><span style="font-size:0.85em; color:#94a3b8; margin-top:4px; display:inline-block;">💡 Tip: ${cur.tip}</span>`;
+    hintBtn.textContent = '🔒 힌트 닫기';
   } else {
-    secondary.innerHTML = `<span style="color:#64748b;">Tip: ${cur.tip}</span>`;
-    hintBtn.textContent = '정답 힌트 열기';
+    secondary.innerHTML = '';
+    hintBtn.textContent = '💡 정답 및 팁 힌트 열기';
   }
 }
 
+// 72개 패턴 무작위 셔플 (랜덤 무한 연습)
+function shufflePatterns() {
+  for (let i = patternData.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [patternData[i], patternData[j]] = [patternData[j], patternData[i]];
+  }
+  currentIndex = 0;
+  updateCard();
+  alert("72개 패턴 순서가 무작위로 섞였습니다. 실전 감각을 시험해 보세요!");
+}
+
+// 마이크 제어
 function toggleMic() {
   if (!recognition) {
-    alert("이 브라우저는 음성인식을 지원하지 않습니다. Chrome 또는 Safari(iOS) 최신 버전을 사용해 주세요.");
+    alert("이 브라우저는 음성인식을 지원하지 않습니다. Chrome 또는 Safari 최신 버전을 권장합니다.");
     return;
   }
   if (!isListening) {
@@ -376,6 +483,7 @@ function toggleMic() {
       const btn = document.getElementById('micBtn');
       btn.textContent = "🛑 마이크 중지";
       btn.className = "action-btn btn-mic listening";
+      document.getElementById('recognizedOutput').textContent = "목소리를 듣고 있습니다...";
     } catch(e) {
       console.error(e);
     }
@@ -393,7 +501,7 @@ function stopMic() {
   document.getElementById('recognizedOutput').textContent = "마이크 일시정지 상태";
 }
 
-// 앱 실행 초기화
+// 초기 로딩
 updateCard();
 </script>
 </body>
